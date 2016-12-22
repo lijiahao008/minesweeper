@@ -1,3 +1,6 @@
+require_relative "board"
+require "byebug"
+
 class MinesweeperGame
 
   def initialize(board)
@@ -15,6 +18,7 @@ class MinesweeperGame
   end
 
   def play
+     p board
     until game_over?
       render
       play_turn
@@ -43,3 +47,7 @@ class MinesweeperGame
 
 
 end
+
+
+game = MinesweeperGame.new(Board.default_grid)
+game.play

@@ -28,6 +28,9 @@ class Board
       self[pos] = Square.new(true)
       @bombs_pos << pos
     end
+    grid.each do |row|
+      row.map! {|square| square ||= Square.new(false) }
+    end
   end
 
   def render
@@ -68,6 +71,3 @@ class Board
   private
   attr_reader :grid
 end
-
-b = Board.default_grid
-p b
