@@ -34,23 +34,34 @@ class Board
     end
   end
 
+  def count_bombs
+    grid.each do |row|
+      row.each do |square|
+        square.num_bombs = 0
+      end
+    end
+  end
+
   def render
     grid.each do |row|
-      puts row.map do |square|
+      row.map do |square|
         unless square.revealed
-          "*"
-        else
           if square.flagged
-            "f"
-          elsif square.is_bomb?
-            "b"
-          elsif square.num_bombs > 0
-            square.num_bombs.to_s
+            print "f "
           else
-            "_"
+            print "* "
+          end
+        else
+          if square.is_bomb?
+            print "b "
+          elsif square.num_bombs > 0
+            print square.num_bombs.to_s
+          else
+            print "_ "
           end
         end
-      end.join(" ")
+      end
+      puts
     end
   end
 
