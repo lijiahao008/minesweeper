@@ -54,5 +54,5 @@ class MinesweeperGame
 end
 
 
-game = MinesweeperGame.new(Board.default_grid)
+game = MinesweeperGame.new(Board.new(9))
 game.play

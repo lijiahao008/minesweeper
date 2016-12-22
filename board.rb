@@ -1,28 +1,24 @@
 require_relative "square"
+require "byebug"
 
 class Board
 
-  SIZE = 5
-  BOMBS = SIZE * SIZE / 3
-  def initialize(grid = Board.blank_grid )
-    @grid = grid
+  def initialize(size)
+    @grid = new_grid(size)
+    @num_bombs = size / 3
+    populate
+    count_bombs
+
   end
 
-  def self.default_grid
-    new_board = self.new
-    new_board.populate
-    new_board.count_bombs
-    new_board
+  def new_grid(size)
+    grid = Array.new(size) { Array.new (size)}
   end
 
-  def self.blank_grid
-    Array.new(SIZE) { Array.new (SIZE)}
-  end
 
   def populate
-    num_bombs = BOMBS
     @bombs_pos = []
-    num_bombs.times do |bomb|
+    @num_bombs.times do |bomb|
       pos = [rand(grid.length), rand(grid.length)]
       while @bombs_pos.include?(pos)
         pos = [rand(grid.length), rand(grid.length)]
@@ -70,7 +66,15 @@ class Board
   def final_render
     grid.each do |row|
       row.map do |square|
-        unless square.revealed
+        if square.revealed
+          if square.num_bombs > 0
+            print square.num_bombs.to_s + " "
+          elsif square.is_bomb?
+            print "b "
+          else
+            print "_ "
+          end
+        else
           if square.flagged
             if square.is_bomb?
               print "x "
@@ -78,38 +82,58 @@ class Board
               print "f "
             end
           elsif square.is_bomb?
-              print "b "
+            print "b "
           else
             print "* "
           end
-        else
-          if square.num_bombs > 0
-            print square.num_bombs.to_s + " "
-          else
-            print "_ "
-          end
         end
       end
+      #   unless square.revealed
+      #     if square.flagged
+      #       if square.is_bomb?
+      #         print "x "
+      #       else
+      #         print "f "
+      #       end
+      #     elsif square.is_bomb?
+      #         print "b "
+      #     else
+      #       print "* "
+      #     end
+      #   else
+      #     if square.num_bombs > 0
+      #       print square.num_bombs.to_s + " "
+      #     else
+      #       print "_ "
+      #     end
+      #   end
+      # end
       puts
     end
   end
 
-  def check_neighbors(pos)
+  def neighbors(pos)
     row, col = pos
-    neighbors = []
-    neighbors << [row - 1, col - 1]
-    neighbors << [row - 1, col]
-    neighbors << [row - 1, col + 1]
-    neighbors << [row + 1, col - 1]
-    neighbors << [row + 1, col]
-    neighbors << [row + 1, col + 1]
-    neighbors << [row, col - 1]
-    neighbors << [row, col + 1]
-    select_neighbors = neighbors.reject { |pos| pos[0] < 0 || pos[1] < 0 ||
-        pos[0] >= grid.length || pos[1] >= grid.length}
+    neighbors_pos = []
+    neighbors_pos << [row - 1, col - 1]
+    neighbors_pos << [row - 1, col]
+    neighbors_pos << [row - 1, col + 1]
+    neighbors_pos << [row + 1, col - 1]
+    neighbors_pos << [row + 1, col]
+    neighbors_pos << [row + 1, col + 1]
+    neighbors_pos << [row, col - 1]
+    neighbors_pos << [row, col + 1]
 
+
+    select_neighbors = neighbors_pos.reject { |pos| pos[0] < 0 || pos[1] < 0 ||
+        pos[0] >= grid.length || pos[1] >= grid.length}
+    select_neighbors
+  end
+
+  def check_neighbors(pos)
     result = 0
-    select_neighbors.each do |neighbor|
+    return result if self[pos].is_bomb?
+    neighbors(pos).each do |neighbor|
       result += 1 if self[neighbor].is_bomb?
     end
     result
@@ -128,10 +152,12 @@ class Board
   end
 
   def reveal(pos)
-    unless self[pos].revealed || self[pos].flagged
-      self[pos].revealed = true
-    else
-      puts "Invalid input"
+    return if self[pos].revealed
+    self[pos].revealed = true unless self[pos].flagged
+    return if self[pos].num_bombs > 0 || self[pos].is_bomb?
+
+    neighbors(pos).each do |neighbor_pos|
+      reveal(neighbor_pos)
     end
   end
 
@@ -146,5 +172,5 @@ class Board
   end
 
   private
-  attr_reader :grid
+  attr_reader :grid, :num_bombs
 end
