@@ -1,6 +1,7 @@
 require_relative "square"
 
 class Board
+
   SIZE = 5
   BOMBS = SIZE * SIZE / 3
   def initialize(grid = Board.blank_grid )
@@ -34,7 +35,27 @@ class Board
   end
 
   def render
-    grid.each { |row| puts row.join(" ")}
+    grid.each do |row|
+      puts row.map do |square|
+        unless square.revealed
+          "*"
+        else
+          if square.flagged
+            "f"
+          elsif square.is_bomb?
+            "b"
+          elsif square.num_bombs > 0
+            square.num_bombs.to_s
+          else
+            "_"
+          end
+        end
+      end.join(" ")
+    end
+  end
+
+  def check_neighbors(pos)
+
   end
 
   def won?

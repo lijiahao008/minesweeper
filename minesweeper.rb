@@ -18,7 +18,6 @@ class MinesweeperGame
   end
 
   def play
-     p board
     until game_over?
       render
       play_turn
