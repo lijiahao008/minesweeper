@@ -3,9 +3,10 @@ class Square
     @revealed = false
     @bomb = bomb
     @flagged = false
+    @num_bombs = 0
   end
 
-  attr_accessor :revealed, :flagged, :bombs_around
+  attr_accessor :revealed, :flagged, :bombs_around, :num_bombs
 
   def is_bomb?
     @bomb

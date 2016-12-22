@@ -11,6 +11,7 @@ class Board
   def self.default_grid
     new_board = self.new
     new_board.populate
+    new_board.count_bombs
     new_board
   end
 
@@ -35,9 +36,10 @@ class Board
   end
 
   def count_bombs
-    grid.each do |row|
-      row.each do |square|
-        square.num_bombs = 0
+    grid.each_index do |row_index|
+      grid.each_index do |col_index|
+        pos = [row_index, col_index]
+        self[pos].num_bombs = check_neighbors(pos)
       end
     end
   end
@@ -55,7 +57,34 @@ class Board
           if square.is_bomb?
             print "b "
           elsif square.num_bombs > 0
-            print square.num_bombs.to_s
+            print square.num_bombs.to_s + " "
+          else
+            print "_ "
+          end
+        end
+      end
+      puts
+    end
+  end
+
+  def final_render
+    grid.each do |row|
+      row.map do |square|
+        unless square.revealed
+          if square.flagged
+            if square.is_bomb?
+              print "x "
+            else
+              print "f "
+            end
+          elsif square.is_bomb?
+              print "b "
+          else
+            print "* "
+          end
+        else
+          if square.num_bombs > 0
+            print square.num_bombs.to_s + " "
           else
             print "_ "
           end
@@ -66,7 +95,24 @@ class Board
   end
 
   def check_neighbors(pos)
+    row, col = pos
+    neighbors = []
+    neighbors << [row - 1, col - 1]
+    neighbors << [row - 1, col]
+    neighbors << [row - 1, col + 1]
+    neighbors << [row + 1, col - 1]
+    neighbors << [row + 1, col]
+    neighbors << [row + 1, col + 1]
+    neighbors << [row, col - 1]
+    neighbors << [row, col + 1]
+    select_neighbors = neighbors.reject { |pos| pos[0] < 0 || pos[1] < 0 ||
+        pos[0] >= grid.length || pos[1] >= grid.length}
 
+    result = 0
+    select_neighbors.each do |neighbor|
+      result += 1 if self[neighbor].is_bomb?
+    end
+    result
   end
 
   def won?
@@ -82,7 +128,6 @@ class Board
   end
 
   def reveal(pos)
-
     unless self[pos].revealed || self[pos].flagged
       self[pos].revealed = true
     else

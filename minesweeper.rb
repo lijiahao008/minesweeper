@@ -9,7 +9,12 @@ class MinesweeperGame
 
   def prompt_pos
     puts "Enter a coordinate: "
-    gets.chomp.split(",").map { |char| Integer(char) }
+    input = gets.chomp.split(",")
+    until input.length == 2
+      puts "Enter a coordinate: "
+      input = gets.chomp.split(",")
+    end
+    input.map { |char| Integer(char) }
   end
 
   def prompt_option
@@ -22,6 +27,7 @@ class MinesweeperGame
       render
       play_turn
     end
+    board.final_render
     puts "Game over"
     puts board.won? ? "You won" : "You lost"
   end
@@ -31,8 +37,8 @@ class MinesweeperGame
   end
 
   def play_turn
-    op = prompt_option
-    pos = prompt_pos
+    op = prompt_option until op == "r" || op == "f"
+    pos = prompt_pos until pos.is_a?(Array)
     op == "r" ? board.reveal(pos) : board.flag(pos)
   end
 
