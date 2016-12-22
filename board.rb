@@ -19,25 +19,35 @@ class Board
 
   def populate
     num_bombs = BOMBS
-    bombs_pos = []
+    @bombs_pos = []
     num_bombs.times do |bomb|
       pos = [rand(grid.length), rand(grid.length)]
-      while bombs_pos.include?(pos)
+      while @bombs_pos.include?(pos)
         pos = [rand(grid.length), rand(grid.length)]
       end
       self[pos] = Square.new(true)
+      @bombs_pos << pos
     end
   end
 
-  def flag_pos(pos)
-    self[pos].flagged = true
+  def render
+    grid.each { |row| puts row.join(" ")}
   end
 
-  def unflag_pos(pos)
-    self[pos].flagged = false
+  def won?
+    grid.flatten.reject {|square| square.is_bomb?}.all? { |square| square.revealed }
   end
 
-  def reveal_pos(pos)
+  def lost?
+    @bombs_pos.count {|pos| self[pos].revealed} > 0
+  end
+
+  def flag(pos)
+    self[pos].flagged = !self[pos].flagged
+  end
+
+  def reveal(pos)
+
     unless self[pos].revealed || self[pos].flagged
       self[pos].revealed = true
     else

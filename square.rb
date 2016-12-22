@@ -5,7 +5,7 @@ class Square
     @flagged = false
   end
 
-  attr_accessor :revealed, :flagged
+  attr_accessor :revealed, :flagged, :bombs_around
 
   def is_bomb?
     @bomb
