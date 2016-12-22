@@ -29,6 +29,22 @@ class Board
     end
   end
 
+  def flag_pos(pos)
+    self[pos].flagged = true
+  end
+
+  def unflag_pos(pos)
+    self[pos].flagged = false
+  end
+
+  def reveal_pos(pos)
+    unless self[pos].revealed || self[pos].flagged
+      self[pos].revealed = true
+    else
+      puts "Invalid input"
+    end
+  end
+
   def [](pos)
     row, col = pos
     grid[row][col]
